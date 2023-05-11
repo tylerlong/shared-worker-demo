@@ -1,11 +1,11 @@
 import React from 'react';
-import { Button, Input, Space, Typography, message } from 'antd';
+import { Button, Input, Space, Typography } from 'antd';
 
 const { Title } = Typography;
 
 const worker = new SharedWorker(new URL('./worker.ts', import.meta.url), { type: 'module' });
 worker.port.onmessage = (e) => {
-  message.success(`Received: ${e.data}`);
+  console.log(e.data);
 };
 
 const App = () => {
@@ -17,11 +17,24 @@ const App = () => {
         <Input defaultValue={m} onChange={(v) => setM(v.target.value)} />
         <Button
           onClick={() => {
-            worker.port.postMessage(m);
-            message.info(`Sent: ${m}`);
+            worker.port.postMessage({ type: 'subscribe' });
           }}
         >
-          Send to shared worker
+          Subscribe
+        </Button>
+        <Button
+          onClick={() => {
+            worker.port.postMessage({ type: 'unsubscribe' });
+          }}
+        >
+          Unsubscribe
+        </Button>
+        <Button
+          onClick={() => {
+            worker.port.postMessage({ type: 'trigger' });
+          }}
+        >
+          Trigger a notification
         </Button>
       </Space>
     </>
