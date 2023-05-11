@@ -12,7 +12,7 @@ const App = () => {
   const [m, setM] = React.useState<string>('Hello world!');
   return (
     <>
-      <Title>Untitled App</Title>
+      <Title>RingCentral Shared Worker Demo</Title>
       <Space>
         <Input defaultValue={m} onChange={(v) => setM(v.target.value)} />
         <Button
