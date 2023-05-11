@@ -9,12 +9,10 @@ worker.port.onmessage = (e) => {
 };
 
 const App = () => {
-  const [m, setM] = React.useState<string>('Hello world!');
   return (
     <>
       <Title>RingCentral Shared Worker Demo</Title>
       <Space>
-        <Input defaultValue={m} onChange={(v) => setM(v.target.value)} />
         <Button
           onClick={() => {
             worker.port.postMessage({ type: 'subscribe' });
