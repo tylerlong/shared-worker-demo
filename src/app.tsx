@@ -1,36 +1,31 @@
 import React from 'react';
-import { Button, Space, Typography } from 'antd';
-import { auto } from 'manate/react';
+import { Button, Input, Space, Typography, message } from 'antd';
 
-import { Store } from './store';
+const { Title } = Typography;
 
-const { Text, Title } = Typography;
+const worker = new SharedWorker(new URL('./worker.js', import.meta.url), { type: 'module' });
+worker.port.onmessage = (e) => {
+  message.success(`Received: ${e.data}`);
+};
 
-const App = (props: { store: Store }) => {
-  const { store } = props;
-  const render = () => (
+const App = () => {
+  const [m, setM] = React.useState<string>('Hello world!');
+  return (
     <>
       <Title>Untitled App</Title>
       <Space>
+        <Input defaultValue={m} onChange={(v) => setM(v.target.value)} />
         <Button
           onClick={() => {
-            store.count -= 1;
+            worker.port.postMessage(m);
+            message.info(`Sent: ${m}`);
           }}
         >
-          -
-        </Button>
-        <Text>{store.count}</Text>
-        <Button
-          onClick={() => {
-            store.count += 1;
-          }}
-        >
-          +
+          Send to shared worker
         </Button>
       </Space>
     </>
   );
-  return auto(render, props);
 };
 
 export default App;
