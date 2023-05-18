@@ -1,5 +1,17 @@
 import React from 'react';
-import { Button, Input, Space, Typography } from 'antd';
+import { Button, Space, Typography } from 'antd';
+import RingCentral from '@rc-ex/core';
+
+import WSSharedWorker from './ws-shared-worker';
+
+const rc = new RingCentral({
+  server: process.env.RINGCENTRAL_SERVER_URL,
+  clientId: process.env.RINGCENTRAL_CLIENT_ID,
+  clientSecret: process.env.RINGCENTRAL_CLIENT_SECRET,
+});
+rc.authorize({
+  jwt: process.env.RINGCENTRAL_JWT_TOKEN,
+});
 
 const { Title } = Typography;
 
@@ -15,21 +27,32 @@ const App = () => {
       <Space>
         <Button
           onClick={() => {
-            worker.port.postMessage({ type: 'subscribe' });
+            WSSharedWorker.subscribe(worker, ['/restapi/v1.0/account/~/extension/~/message-store?type=Pager']);
+            console.log('Subscribed');
           }}
         >
           Subscribe
         </Button>
         <Button
           onClick={() => {
-            worker.port.postMessage({ type: 'unsubscribe' });
+            WSSharedWorker.unsubscribe(worker);
+            console.log('Unsubscribed');
           }}
         >
           Unsubscribe
         </Button>
         <Button
           onClick={() => {
-            worker.port.postMessage({ type: 'trigger' });
+            rc.restapi()
+              .account()
+              .extension()
+              .companyPager()
+              .post({
+                from: { extensionId: rc.token.owner_id },
+                to: [{ extensionId: rc.token.owner_id }],
+                text: 'Hello world',
+              });
+            console.log('Triggered');
           }}
         >
           Trigger a notification
